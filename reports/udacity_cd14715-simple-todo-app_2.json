@@ -1,0 +1,167 @@
+{
+  "pullRequest": {
+    "owner": "udacity",
+    "repo": "cd14715-simple-todo-app",
+    "number": 2
+  },
+  "fileReviews": [
+    {
+      "file": "src/index.ts",
+      "codeQuality": {
+        "file": "src/index.ts",
+        "issues": [
+          {
+            "line": 42,
+            "severity": "high",
+            "category": "security",
+            "description": "Potential SQL injection vulnerability",
+            "suggestion": "Use parameterized queries or an ORM"
+          },
+          {
+            "line": 85,
+            "severity": "medium",
+            "category": "performance",
+            "description": "N+1 query pattern detected",
+            "suggestion": "Use JOIN or batch loading"
+          }
+        ],
+        "overallScore": 72,
+        "summary": "Found 2 issues: 1 security concern and 1 performance issue"
+      },
+      "testCoverage": {
+        "file": "src/index.ts",
+        "hasTests": true,
+        "testFiles": [
+          "tests/index.test.ts"
+        ],
+        "untestedPaths": [
+          {
+            "type": "function",
+            "location": "handleError (line 100)",
+            "priority": "high",
+            "reasoning": "Error handler not covered by tests",
+            "suggestedTest": "Test various error scenarios and edge cases"
+          }
+        ],
+        "coverageEstimate": 65,
+        "summary": "Good coverage overall with gaps in error handling"
+      },
+      "refactorings": {
+        "file": "src/index.ts",
+        "suggestions": [
+          {
+            "type": "extract-function",
+            "location": "processData (line 50-70)",
+            "impact": "high",
+            "description": "Extract data processing logic into separate function",
+            "before": "const result = data.filter(...).map(...).sort(...)",
+            "after": "const result = processAndSortData(data)",
+            "benefits": "Improves readability, testability, and reusability"
+          },
+          {
+            "type": "modernize",
+            "location": "asyncOperation (line 110)",
+            "impact": "medium",
+            "description": "Replace Promise chains with async/await",
+            "before": "return fn().then(x => x.then(y => y))",
+            "after": "const x = await fn(); return await x;",
+            "benefits": "More readable and maintainable async code"
+          }
+        ],
+        "summary": "2 refactoring opportunities found"
+      }
+    },
+    {
+      "file": "src/utils/helpers.ts",
+      "codeQuality": {
+        "file": "src/utils/helpers.ts",
+        "issues": [],
+        "overallScore": 92,
+        "summary": "No issues found - excellent code quality"
+      },
+      "testCoverage": {
+        "file": "src/utils/helpers.ts",
+        "hasTests": true,
+        "testFiles": [
+          "tests/utils/helpers.test.ts"
+        ],
+        "untestedPaths": [],
+        "coverageEstimate": 95,
+        "summary": "Comprehensive test coverage"
+      },
+      "refactorings": {
+        "file": "src/utils/helpers.ts",
+        "suggestions": [
+          {
+            "type": "simplify",
+            "location": "validateInput (line 25)",
+            "impact": "low",
+            "description": "Simplify nested conditionals",
+            "before": "if (a) { if (b) { if (c) { return true; } } }",
+            "after": "if (a && b && c) { return true; }",
+            "benefits": "Reduces nesting and improves readability"
+          }
+        ],
+        "summary": "1 minor refactoring opportunity"
+      }
+    }
+  ],
+  "summary": {
+    "totalFiles": 2,
+    "overallScore": 82,
+    "criticalIssues": 0,
+    "highPriorityTests": 1,
+    "refactoringOpportunities": 3
+  },
+  "recommendations": [
+    {
+      "priority": "high",
+      "category": "Security",
+      "description": "SQL injection vulnerability in query building",
+      "files": [
+        "src/index.ts"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "Testing",
+      "description": "Error handling code lacks test coverage",
+      "files": [
+        "src/index.ts"
+      ]
+    },
+    {
+      "priority": "medium",
+      "category": "Performance",
+      "description": "N+1 query pattern detected",
+      "files": [
+        "src/index.ts"
+      ]
+    },
+    {
+      "priority": "medium",
+      "category": "Refactoring",
+      "description": "Extract data processing logic into separate function",
+      "files": [
+        "src/index.ts"
+      ]
+    },
+    {
+      "priority": "low",
+      "category": "Code Quality",
+      "description": "Simplify nested conditionals in validation",
+      "files": [
+        "src/utils/helpers.ts"
+      ]
+    }
+  ],
+  "metadata": {
+    "analyzedAt": "2026-11-23T03:08:59.734Z",
+    "duration": 2500,
+    "agentVersions": {
+      "code-quality-analyzer": "1.0.0",
+      "test-coverage-analyzer": "1.0.0",
+      "refactoring-suggester": "1.0.0"
+    }
+  }
+}

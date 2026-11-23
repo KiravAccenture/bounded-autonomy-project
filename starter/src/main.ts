@@ -142,15 +142,14 @@ async function main() {
 
     const reportGenerator = new ReportGenerator();
 
-    // Create reports directory if it doesn't exist
-    const reportsDir = path.join(process.cwd(), 'reports');
+    // Create reports directory if it doesn't exist (in parent project directory)
+    const reportsDir = path.join(process.cwd(), '..', 'reports');
     if (!fs.existsSync(reportsDir)) {
       fs.mkdirSync(reportsDir, { recursive: true });
     }
 
-    // Generate filename with timestamp and PR info
-    const timestamp = new Date().toISOString().split('T')[0];
-    const baseFilename = `${owner}-${repo}-pr${prNumber}-${timestamp}`;
+    // Generate filename without timestamp, using underscores for consistency
+    const baseFilename = `${owner}_${repo}_${prNumber}`;
 
     // Generate Markdown report
     const markdownReport = reportGenerator.generateMarkdownReport(result);
