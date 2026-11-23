@@ -14,37 +14,65 @@
             "line": 42,
             "severity": "high",
             "category": "security",
-            "description": "Potential SQL injection vulnerability",
-            "suggestion": "Use parameterized queries or an ORM"
+            "description": "Potential SQL injection vulnerability detected in database query construction. Dynamic SQL strings are being built without proper parameterization or prepared statements.",
+            "suggestion": "Replace dynamic SQL construction with parameterized queries or use an ORM (like TypeORM, Sequelize, or Prisma). Example: Use prepared statements with placeholders instead of string concatenation: db.query('SELECT * FROM users WHERE id = ?', [userId])"
           },
           {
             "line": 85,
-            "severity": "medium",
+            "severity": "high",
             "category": "performance",
-            "description": "N+1 query pattern detected",
-            "suggestion": "Use JOIN or batch loading"
+            "description": "N+1 query pattern detected. The code performs a query in a loop, resulting in multiple database calls when a single optimized query could retrieve all needed data at once.",
+            "suggestion": "Use JOIN operations or batch loading to fetch related data in a single query. For example, instead of querying users then separately querying their posts, use a JOIN to get all data in one query. Consider implementing query optimization and caching strategies."
+          },
+          {
+            "line": 100,
+            "severity": "medium",
+            "category": "bug-risk",
+            "description": "Error handling code path may not cover all error types. Generic error handler may mask specific error details, making debugging difficult.",
+            "suggestion": "Implement comprehensive error handling with specific error type checks. Create typed error classes and handle each error type appropriately with meaningful logging and recovery strategies."
           }
         ],
         "overallScore": 72,
-        "summary": "Found 2 issues: 1 security concern and 1 performance issue"
+        "summary": "src/index.ts has moderate code quality concerns focused on security vulnerabilities and performance issues. The SQL injection vulnerability is critical and must be addressed immediately. The N+1 query pattern needs optimization to improve performance. Error handling needs to be more robust and specific. The file would benefit from security-focused code review before deployment."
       },
       "testCoverage": {
         "file": "src/index.ts",
         "hasTests": true,
         "testFiles": [
-          "tests/index.test.ts"
+          "src/index.test.ts"
         ],
         "untestedPaths": [
           {
             "type": "function",
-            "location": "handleError (line 100)",
+            "location": "errorHandler (line 100)",
+            "priority": "critical",
+            "reasoning": "Error handling is security-critical and must handle all error types properly. Missing tests risk unhandled exceptions and security vulnerabilities",
+            "suggestedTest": "Test errorHandler with various error types: test('should handle TypeError', () => { expect(errorHandler(new TypeError('test'))).toBe(errorResponse) }); test('should handle Error with null message', () => { expect(errorHandler(new Error())).toThrow() }); test('should handle undefined error', () => { expect(errorHandler(undefined)).toBe(defaultErrorResponse) })"
+          },
+          {
+            "type": "branch",
+            "location": "processRequest (line 45-60)",
             "priority": "high",
-            "reasoning": "Error handler not covered by tests",
-            "suggestedTest": "Test various error scenarios and edge cases"
+            "reasoning": "Conditional logic for request validation has multiple branches (valid input, empty input, null input) that need to be exercised separately",
+            "suggestedTest": "test('should validate request with null input', () => { expect(processRequest(null)).toThrow(ValidationError) }); test('should process empty request object', () => { expect(processRequest({})).toBe(defaultResponse) }); test('should handle undefined input gracefully', () => { expect(processRequest(undefined)).toBe(null) })"
+          },
+          {
+            "type": "edge-case",
+            "location": "Main export function (line 1-20)",
+            "priority": "high",
+            "reasoning": "Public API entry points need comprehensive edge case testing including boundary conditions and special values",
+            "suggestedTest": "test('should handle extremely large input objects', () => { const largeObj = {}; for(let i = 0; i < 10000; i++) largeObj[i] = i; expect(mainFunction(largeObj)).toBeDefined() }); test('should handle circular references', () => { const circular = {}; circular.self = circular; expect(() => mainFunction(circular)).toThrow() })"
+          },
+          {
+            "type": "function",
+            "location": "initializeApp (line 15)",
+            "priority": "high",
+            "reasoning": "Initialization logic sets up application state and configuration, unhandled initialization errors could crash the app",
+            "suggestedTest": "test('should initialize with default config', () => { const app = initializeApp(); expect(app.config).toBeDefined() }); test('should handle missing environment variables', () => { delete process.env.APP_KEY; expect(() => initializeApp()).toThrow(ConfigError) })"
           }
         ],
         "coverageEstimate": 65,
-        "summary": "Good coverage overall with gaps in error handling"
+        "summary": "src/index.ts has approximately 65% test coverage with significant gaps in error handling, initialization logic, and edge cases. Critical priority areas include exception handling (line 100), request validation branches (lines 45-60), and public API initialization (line 15). High-priority gaps exist in boundary condition testing and error recovery paths. The file exports public functions that should handle various input types robustly."
       },
       "refactorings": {
         "file": "src/index.ts",
@@ -53,22 +81,31 @@
             "type": "extract-function",
             "location": "processData (line 50-70)",
             "impact": "high",
-            "description": "Extract data processing logic into separate function",
-            "before": "const result = data.filter(...).map(...).sort(...)",
-            "after": "const result = processAndSortData(data)",
-            "benefits": "Improves readability, testability, and reusability"
+            "description": "Extract data processing logic including filtering and mapping operations into a dedicated, reusable function. This block contains multiple chained operations that would benefit from being isolated for testability and clarity.",
+            "before": "const result = data\n  .filter(item => item.active === true)\n  .map(item => ({\n    ...item,\n    processed: true,\n    timestamp: Date.now()\n  }))\n  .sort((a, b) => a.timestamp - b.timestamp);",
+            "after": "const result = processAndSortData(data);\n\nfunction processAndSortData(data: Item[]): ProcessedItem[] {\n  return data\n    .filter(item => item.active === true)\n    .map(item => ({\n      ...item,\n      processed: true,\n      timestamp: Date.now()\n    }))\n    .sort((a, b) => a.timestamp - b.timestamp);\n}",
+            "benefits": "Improves readability by naming the operation clearly, enables unit testing of data transformation logic independently, reduces cognitive load in the main function, and allows reuse of this processing logic elsewhere in the codebase"
           },
           {
             "type": "modernize",
-            "location": "asyncOperation (line 110)",
-            "impact": "medium",
-            "description": "Replace Promise chains with async/await",
-            "before": "return fn().then(x => x.then(y => y))",
-            "after": "const x = await fn(); return await x;",
-            "benefits": "More readable and maintainable async code"
+            "location": "async operations (line 110-130)",
+            "impact": "high",
+            "description": "Convert Promise chain-based async operations to modern async/await syntax. This improves readability and error handling consistency across the codebase.",
+            "before": "fetchData()\n  .then(data => processData(data))\n  .then(result => saveResult(result))\n  .then(() => console.log('Complete'))\n  .catch(err => handleError(err));",
+            "after": "async function handleDataFlow() {\n  try {\n    const data = await fetchData();\n    const result = await processData(data);\n    await saveResult(result);\n    console.log('Complete');\n  } catch (err) {\n    handleError(err);\n  }\n}",
+            "benefits": "Async/await is more readable and easier to understand than Promise chains, provides cleaner error handling with try/catch, enables use of standard control flow, reduces arrow function nesting, and aligns with modern JavaScript/TypeScript best practices"
+          },
+          {
+            "type": "rename",
+            "location": "processData function (line 50)",
+            "impact": "low",
+            "description": "Consider renaming generic functions to reflect their specific purpose. 'processData' is vague and doesn't indicate what transformation is being applied.",
+            "before": "function processData(data: any[]): any[] {\n  // filtering and mapping logic\n}",
+            "after": "function filterActiveItemsAndEnrich(data: Item[]): EnrichedItem[] {\n  // filtering and mapping logic\n}",
+            "benefits": "Makes the function's intent immediately clear to other developers, reduces need for reading implementation details, improves IDE autocomplete suggestions, and facilitates faster code navigation"
           }
         ],
-        "summary": "2 refactoring opportunities found"
+        "summary": "The src/index.ts file has significant refactoring opportunities focused on modernizing Promise chains to async/await (high impact), extracting complex data processing logic into dedicated functions (high impact), and improving naming clarity (low impact). These changes will substantially improve code maintainability and align with current TypeScript best practices."
       }
     },
     {
@@ -77,47 +114,64 @@
         "file": "src/utils/helpers.ts",
         "issues": [],
         "overallScore": 92,
-        "summary": "No issues found - excellent code quality"
+        "summary": "src/utils/helpers.ts demonstrates excellent code quality with no critical issues detected. The code is well-structured, follows best practices, and maintains strong maintainability. No security vulnerabilities or performance concerns identified."
       },
       "testCoverage": {
         "file": "src/utils/helpers.ts",
         "hasTests": true,
         "testFiles": [
-          "tests/utils/helpers.test.ts"
+          "src/utils/helpers.test.ts"
         ],
-        "untestedPaths": [],
+        "untestedPaths": [
+          {
+            "type": "edge-case",
+            "location": "performanceOptimization (line ~180)",
+            "priority": "low",
+            "reasoning": "Very high existing coverage suggests most code paths are tested. Only rare edge cases involving extreme input values or performance thresholds may be untested",
+            "suggestedTest": "test('should handle maximum safe integer', () => { expect(helperFunction(Number.MAX_SAFE_INTEGER)).toBe(expectedResult) }); test('should process empty string efficiently', () => { const result = helperFunction(''); expect(result.length).toBe(0) })"
+          }
+        ],
         "coverageEstimate": 95,
-        "summary": "Comprehensive test coverage"
+        "summary": "src/utils/helpers.ts demonstrates strong test coverage at approximately 95%. Test suite is well-designed with comprehensive coverage of utility functions, standard cases, and most edge cases. Only minimal gaps remain in extreme boundary conditions or rarely-used code paths. Current coverage is excellent with low risk for regressions."
       },
       "refactorings": {
         "file": "src/utils/helpers.ts",
         "suggestions": [
           {
             "type": "simplify",
-            "location": "validateInput (line 25)",
-            "impact": "low",
-            "description": "Simplify nested conditionals",
-            "before": "if (a) { if (b) { if (c) { return true; } } }",
-            "after": "if (a && b && c) { return true; }",
-            "benefits": "Reduces nesting and improves readability"
+            "location": "validateInput function (line 25-40)",
+            "impact": "medium",
+            "description": "Replace deeply nested if statements with guard clauses or combined conditions. The current structure uses multiple levels of nesting that reduce readability and make the validation logic harder to follow.",
+            "before": "function validateInput(value: string): boolean {\n  if (value !== null) {\n    if (value !== undefined) {\n      if (value.length > 0) {\n        if (value.length < 255) {\n          return true;\n        }\n      }\n    }\n  }\n  return false;\n}",
+            "after": "function validateInput(value: string): boolean {\n  if (!value || value.length === 0 || value.length >= 255) {\n    return false;\n  }\n  return true;\n}\n\n// Or even more concise:\nfunction validateInput(value: string): boolean {\n  return value && value.length > 0 && value.length < 255;\n}",
+            "benefits": "Reduces nesting depth from 4 levels to 0, makes the validation rules immediately visible in a single readable line, eliminates unnecessary intermediate conditions, and applies the guard clause pattern for clearer error/early-exit logic"
+          },
+          {
+            "type": "extract-function",
+            "location": "helper validation logic (line 25-60)",
+            "impact": "medium",
+            "description": "If there are multiple validation checks scattered throughout the helpers file, extract reusable validation utilities into separate focused functions. This creates a coherent validation module.",
+            "before": "function validateEmail(email: string): boolean {\n  return email.includes('@') && email.includes('.');\n}\n\nfunction validatePhone(phone: string): boolean {\n  return phone.length >= 10 && phone.match(/^[0-9]+$/);\n}",
+            "after": "const validators = {\n  email: (email: string): boolean => /^[^@]+@[^@]+\\.[^@]+$/.test(email),\n  phone: (phone: string): boolean => /^[0-9]{10,}$/.test(phone)\n};\n\nexport const validateEmail = (email: string) => validators.email(email);",
+            "benefits": "Creates a centralized validation registry that's easier to maintain and extend, allows easy testing of all validators in one place, provides a consistent API across different validation types, and reduces code duplication"
           }
         ],
-        "summary": "1 minor refactoring opportunity"
+        "summary": "The src/utils/helpers.ts file has several medium-impact refactoring opportunities focused on simplifying nested conditionals and extracting validation logic into a coherent module. These improvements will enhance code readability and maintainability while maintaining the already excellent overall quality."
       }
     }
   ],
   "summary": {
     "totalFiles": 2,
     "overallScore": 82,
-    "criticalIssues": 0,
-    "highPriorityTests": 1,
-    "refactoringOpportunities": 3
+    "criticalIssues": 1,
+    "highPriorityTests": 4,
+    "refactoringOpportunities": 5
   },
   "recommendations": [
     {
-      "priority": "high",
+      "priority": "critical",
       "category": "Security",
-      "description": "SQL injection vulnerability in query building",
+      "description": "SQL injection vulnerability in database query construction. Dynamic SQL strings are being built without proper parameterization or prepared statements. This poses a critical security risk and must be addressed immediately before any deployment.",
       "files": [
         "src/index.ts"
       ]
@@ -125,15 +179,39 @@
     {
       "priority": "high",
       "category": "Testing",
-      "description": "Error handling code lacks test coverage",
+      "description": "Critical gap in error handling test coverage. The errorHandler function (line 100) lacks comprehensive tests for different error types and scenarios. Error handling is security-critical and unhandled exceptions could lead to vulnerabilities or crashes.",
       "files": [
         "src/index.ts"
       ]
     },
     {
-      "priority": "medium",
+      "priority": "high",
       "category": "Performance",
-      "description": "N+1 query pattern detected",
+      "description": "N+1 query pattern detected in database operations (line 85). Multiple database queries are being executed in loops when a single optimized query with JOINs could retrieve all data at once. This significantly impacts application performance and scalability.",
+      "files": [
+        "src/index.ts"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "Testing",
+      "description": "Missing test coverage for request validation logic. The processRequest function (lines 45-60) has multiple conditional branches for handling null, empty, and valid inputs that require separate test cases to ensure all paths are exercised.",
+      "files": [
+        "src/index.ts"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "Testing",
+      "description": "Missing initialization logic tests. The initializeApp function (line 15) sets up critical application state and configuration. Unhandled initialization errors could crash the application and need comprehensive test coverage.",
+      "files": [
+        "src/index.ts"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "Refactoring",
+      "description": "Modernize async operations from Promise chains to async/await syntax. Converting lines 110-130 from .then() chains to async/await will significantly improve readability, enable better error handling with try/catch, and align with modern TypeScript best practices.",
       "files": [
         "src/index.ts"
       ]
@@ -141,27 +219,43 @@
     {
       "priority": "medium",
       "category": "Refactoring",
-      "description": "Extract data processing logic into separate function",
+      "description": "Extract data processing logic (lines 50-70) into a separate reusable function. The chained filter, map, and sort operations should be isolated into their own function for improved testability, readability, and potential reuse elsewhere in the codebase.",
       "files": [
         "src/index.ts"
       ]
     },
     {
-      "priority": "low",
+      "priority": "medium",
       "category": "Code Quality",
-      "description": "Simplify nested conditionals in validation",
+      "description": "Simplify nested conditionals in validateInput function (lines 25-40). Replace deeply nested if statements with guard clauses or combined conditions to reduce nesting depth and improve code clarity.",
       "files": [
         "src/utils/helpers.ts"
+      ]
+    },
+    {
+      "priority": "medium",
+      "category": "Testing",
+      "description": "Add edge case tests for extreme input values. While src/utils/helpers.ts has excellent coverage at 95%, consider adding tests for boundary conditions like maximum safe integers and empty strings to achieve comprehensive robustness.",
+      "files": [
+        "src/utils/helpers.ts"
+      ]
+    },
+    {
+      "priority": "low",
+      "category": "Code Quality",
+      "description": "Improve function naming clarity. Rename generic functions like 'processData' to more descriptive names like 'filterActiveItemsAndEnrich' to make code intent immediately clear and reduce need for detailed reading of implementation.",
+      "files": [
+        "src/index.ts"
       ]
     }
   ],
   "metadata": {
-    "analyzedAt": "2026-11-23T03:08:49.596Z",
-    "duration": 2500,
+    "analyzedAt": "2026-11-23T10:45:30Z",
+    "duration": 45000,
     "agentVersions": {
-      "code-quality-analyzer": "1.0.0",
-      "test-coverage-analyzer": "1.0.0",
-      "refactoring-suggester": "1.0.0"
+      "codeQualityAnalyzer": "1.0.0",
+      "testCoverageAnalyzer": "1.0.0",
+      "refactoringSuggester": "1.0.0"
     }
   }
 }

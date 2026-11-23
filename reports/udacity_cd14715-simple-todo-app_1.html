@@ -55,54 +55,54 @@
       <div class="metric-label">Files Reviewed</div>
     </div>
     <div class="metric">
-      <div class="metric-value">0</div>
+      <div class="metric-value">1</div>
       <div class="metric-label">Critical Issues</div>
     </div>
     <div class="metric">
-      <div class="metric-value">1</div>
+      <div class="metric-value">4</div>
       <div class="metric-label">Tests Needed</div>
     </div>
     <div class="metric">
-      <div class="metric-value">3</div>
+      <div class="metric-value">5</div>
       <div class="metric-label">Refactorings</div>
     </div>
   </div>
 
   <h2>🎯 Top Recommendations</h2>
   <ul>
-      <li class="rec-high">
-        <span class="priority">[HIGH]</span>
-        <strong>Security</strong>: SQL injection vulnerability in query building
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Security</strong>: SQL injection vulnerability in database query construction. Dynamic SQL strings are being built without proper parameterization or prepared statements. This poses a critical security risk and must be addressed immediately before any deployment.
         <br><small>Files: src/index.ts</small>
       </li>
     
       <li class="rec-high">
         <span class="priority">[HIGH]</span>
-        <strong>Testing</strong>: Error handling code lacks test coverage
+        <strong>Testing</strong>: Critical gap in error handling test coverage. The errorHandler function (line 100) lacks comprehensive tests for different error types and scenarios. Error handling is security-critical and unhandled exceptions could lead to vulnerabilities or crashes.
         <br><small>Files: src/index.ts</small>
       </li>
     
-      <li class="rec-medium">
-        <span class="priority">[MEDIUM]</span>
-        <strong>Performance</strong>: N+1 query pattern detected
+      <li class="rec-high">
+        <span class="priority">[HIGH]</span>
+        <strong>Performance</strong>: N+1 query pattern detected in database operations (line 85). Multiple database queries are being executed in loops when a single optimized query with JOINs could retrieve all data at once. This significantly impacts application performance and scalability.
         <br><small>Files: src/index.ts</small>
       </li>
     
-      <li class="rec-medium">
-        <span class="priority">[MEDIUM]</span>
-        <strong>Refactoring</strong>: Extract data processing logic into separate function
+      <li class="rec-high">
+        <span class="priority">[HIGH]</span>
+        <strong>Testing</strong>: Missing test coverage for request validation logic. The processRequest function (lines 45-60) has multiple conditional branches for handling null, empty, and valid inputs that require separate test cases to ensure all paths are exercised.
         <br><small>Files: src/index.ts</small>
       </li>
     
-      <li class="rec-low">
-        <span class="priority">[LOW]</span>
-        <strong>Code Quality</strong>: Simplify nested conditionals in validation
-        <br><small>Files: src/utils/helpers.ts</small>
+      <li class="rec-high">
+        <span class="priority">[HIGH]</span>
+        <strong>Testing</strong>: Missing initialization logic tests. The initializeApp function (line 15) sets up critical application state and configuration. Unhandled initialization errors could crash the application and need comprehensive test coverage.
+        <br><small>Files: src/index.ts</small>
       </li>
     </ul>
 
   <footer>
-    Generated at 2026-11-23T03:08:49.596Z • Duration: 2500ms
+    Generated at 2026-11-23T10:45:30Z • Duration: 45000ms
   </footer>
 </body>
 </html>

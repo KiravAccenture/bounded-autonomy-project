@@ -2,6 +2,7 @@ import { query, AgentDefinition } from '@anthropic-ai/claude-agent-sdk';
 import { ReviewReport, ReviewReportSchema, ReviewReportJSONSchema } from './types';
 import { buildOrchestratorPrompt } from './prompts';
 import { codeQualityAnalyzer, testCoverageAnalyzer, refactoringSuggester } from './agents';
+import { mcpServersConfig } from './config/mcp.config';
 
 /**
  * Orchestrator configuration options
@@ -132,8 +133,11 @@ export class CodeReviewOrchestrator {
           // Subagent registration - these agents can be invoked via Task tool
           agents: this.agents,
 
-          // The orchestrator uses the Task tool to invoke subagents
-          allowedTools: ['Task'],
+          // MCP servers for external tool integration (GitHub, ESLint)
+          mcpServers: mcpServersConfig,
+
+          // The orchestrator uses the Task tool to invoke subagents and MCP tools
+          allowedTools: ['Task', 'mcp__github', 'mcp__eslint'],
 
           // Structured output configuration - ensures output matches ReviewReportSchema
           outputFormat: {

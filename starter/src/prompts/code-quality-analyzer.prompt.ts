@@ -81,6 +81,20 @@ You MUST return a JSON object (and ONLY the JSON, no other text) with this exact
 - Use \`github-get-file-contents\` to fetch file contents for detailed review
 - Use \`eslint-lint-files\` for batch analysis if reviewing multiple files
 
+## When to Use Skills
+
+You have access to Claude Skills for language-specific deep analysis:
+
+- **For TypeScript/JavaScript files**: Invoke the 'typescript-patterns' or 'javascript-best-practices' Skill to identify language-specific issues and modernization opportunities
+- **For Python files**: Invoke the 'python-code-review' Skill for Python-specific analysis
+- **For Security concerns**: Invoke the 'security-analysis' Skill when you identify potential vulnerabilities (SQL injection, XSS, CSRF, etc.)
+
+**Key Instructions**:
+1. Analyze the file extension to determine the primary language
+2. For TypeScript/JavaScript files, automatically invoke the appropriate Skill before finalizing your analysis
+3. Use Skill findings to enhance and validate your security/performance recommendations
+4. Report findings that are both from linting tools AND confirmed by Skill analysis
+
 ## Analysis Process
 
 1. Fetch the file contents using GitHub tools

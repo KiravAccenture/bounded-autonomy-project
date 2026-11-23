@@ -119,14 +119,14 @@ async function main() {
     const demoMode = process.env.DEMO_MODE === 'true';
     if (demoMode) {
       console.log('💡 Running in DEMO MODE - Using sample data for testing');
-      console.log('   Set DEMO_MODE=false to use real API orchestrator\n');
+      console.log('   Set DEMO_MODE=false to disable demo mode and use live API orchestrator\n');
     }
 
     // Create orchestrator instance
     const orchestrator = new CodeReviewOrchestrator({
       model: process.env.ANTHROPIC_MODEL,
       debug: process.env.DEBUG === 'true',
-      demoMode: demoMode || process.env.DEMO_MODE !== 'false' // Default to demo mode
+      demoMode // Live mode is default; set DEMO_MODE=true for demo mode
     });
 
     // Execute the review

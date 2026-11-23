@@ -47,62 +47,62 @@
   
   <div class="summary">
     <div class="metric">
-      <div class="metric-value">82</div>
+      <div class="metric-value">32</div>
       <div class="metric-label">Overall Score</div>
     </div>
     <div class="metric">
-      <div class="metric-value">2</div>
+      <div class="metric-value">1</div>
       <div class="metric-label">Files Reviewed</div>
     </div>
     <div class="metric">
-      <div class="metric-value">0</div>
+      <div class="metric-value">6</div>
       <div class="metric-label">Critical Issues</div>
     </div>
     <div class="metric">
-      <div class="metric-value">1</div>
+      <div class="metric-value">8</div>
       <div class="metric-label">Tests Needed</div>
     </div>
     <div class="metric">
-      <div class="metric-value">3</div>
+      <div class="metric-value">7</div>
       <div class="metric-label">Refactorings</div>
     </div>
   </div>
 
   <h2>🎯 Top Recommendations</h2>
   <ul>
-      <li class="rec-high">
-        <span class="priority">[HIGH]</span>
-        <strong>Security</strong>: SQL injection vulnerability in query building
-        <br><small>Files: src/index.ts</small>
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Security</strong>: SQL Injection vulnerabilities in three search/filter functions. The searchTodos, searchTodosByStatus, and getTodosByUser functions all use direct string interpolation and concatenation without parameterized queries. This allows attackers to execute arbitrary SQL commands, potentially exposing user data, modifying records, or deleting entire tables. These vulnerabilities directly contradict the security-aware comments in the code and represent a critical data exposure risk.
+        <br><small>Files: src/todo.ts</small>
+      </li>
+    
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Testing</strong>: Zero test coverage detected. The file contains no automated tests despite implementing critical functions like createTodo, deleteTodo, and XSS sanitization. This is especially dangerous given the SQL injection vulnerabilities which should be caught by security-focused tests. All three vulnerable search functions and core CRUD operations require comprehensive test coverage.
+        <br><small>Files: src/todo.ts</small>
+      </li>
+    
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Security - Input Validation</strong>: Missing input validation in searchTodosByStatus function. The function accepts a string parameter 'completed' but does not validate that it is 'true' or 'false' before concatenating into SQL. This lack of type checking combined with string concatenation creates a SQL injection vulnerability. Additionally, the parameter type should be boolean to match the domain model.
+        <br><small>Files: src/todo.ts</small>
       </li>
     
       <li class="rec-high">
         <span class="priority">[HIGH]</span>
-        <strong>Testing</strong>: Error handling code lacks test coverage
-        <br><small>Files: src/index.ts</small>
+        <strong>Security - LIKE Wildcard Injection</strong>: SQL LIKE wildcard injection in searchTodos function. User input containing '%' or '_' characters will be interpreted as SQL LIKE wildcards, returning unintended results. For example, searching for '%' would return all records. This requires proper escaping or use of parameterized queries.
+        <br><small>Files: src/todo.ts</small>
       </li>
     
-      <li class="rec-medium">
-        <span class="priority">[MEDIUM]</span>
-        <strong>Performance</strong>: N+1 query pattern detected
-        <br><small>Files: src/index.ts</small>
-      </li>
-    
-      <li class="rec-medium">
-        <span class="priority">[MEDIUM]</span>
-        <strong>Refactoring</strong>: Extract data processing logic into separate function
-        <br><small>Files: src/index.ts</small>
-      </li>
-    
-      <li class="rec-low">
-        <span class="priority">[LOW]</span>
-        <strong>Code Quality</strong>: Simplify nested conditionals in validation
-        <br><small>Files: src/utils/helpers.ts</small>
+      <li class="rec-high">
+        <span class="priority">[HIGH]</span>
+        <strong>Error Handling</strong>: Missing error handling in all three vulnerable search functions. Database query errors are not caught or handled gracefully, which could cause unhandled promise rejections. All async functions should include try-catch blocks or error propagation mechanisms.
+        <br><small>Files: src/todo.ts</small>
       </li>
     </ul>
 
   <footer>
-    Generated at 2026-11-23T03:08:59.734Z • Duration: 2500ms
+    Generated at 2026-11-23T00:00:00Z • Duration: 25000ms
   </footer>
 </body>
 </html>

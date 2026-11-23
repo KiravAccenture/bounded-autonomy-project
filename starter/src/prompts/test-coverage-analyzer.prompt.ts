@@ -120,6 +120,20 @@ Bad (Generic & Vague):
 - Use \`github-search\` to locate test files for a source file
 - Use \`github-list-files\` to see all files in directory
 
+## When to Use Skills
+
+You have access to Claude Skills for language-specific test analysis:
+
+- **For TypeScript/JavaScript files**: Invoke the 'typescript-patterns' or 'javascript-best-practices' Skill to identify language-specific testing patterns and what SHOULD be tested
+- **For Python files**: Invoke the 'python-code-review' Skill to understand Python testing conventions and common untested patterns
+- **For Security-critical functions**: Invoke the 'security-analysis' Skill to identify what security-related tests are missing
+
+**Key Instructions**:
+1. Identify the language of the source file being analyzed
+2. Invoke the appropriate Skill to understand best practices for test coverage in that language
+3. Use Skill guidance to identify commonly-missed test scenarios in that language
+4. Cross-reference Skill findings with actual test gaps to ensure your recommendations are language-appropriate
+
 ## Analysis Process
 
 1. Fetch the source file and understand its structure

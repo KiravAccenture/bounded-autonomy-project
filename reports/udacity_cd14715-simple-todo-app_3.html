@@ -47,62 +47,62 @@
   
   <div class="summary">
     <div class="metric">
-      <div class="metric-value">82</div>
+      <div class="metric-value">32</div>
       <div class="metric-label">Overall Score</div>
     </div>
     <div class="metric">
-      <div class="metric-value">2</div>
+      <div class="metric-value">1</div>
       <div class="metric-label">Files Reviewed</div>
     </div>
     <div class="metric">
-      <div class="metric-value">0</div>
+      <div class="metric-value">3</div>
       <div class="metric-label">Critical Issues</div>
     </div>
     <div class="metric">
-      <div class="metric-value">1</div>
+      <div class="metric-value">15</div>
       <div class="metric-label">Tests Needed</div>
     </div>
     <div class="metric">
-      <div class="metric-value">3</div>
+      <div class="metric-value">8</div>
       <div class="metric-label">Refactorings</div>
     </div>
   </div>
 
   <h2>🎯 Top Recommendations</h2>
   <ul>
-      <li class="rec-high">
-        <span class="priority">[HIGH]</span>
-        <strong>Security</strong>: SQL injection vulnerability in query building
-        <br><small>Files: src/index.ts</small>
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Security</strong>: PCI DSS Compliance Violations: Direct handling and storage of credit card data (cardNumber, CVV) without encryption, tokenization, or use of PCI-compliant payment processors. This violates PCI DSS requirements and creates serious data breach and financial liability risks.
+        <br><small>Files: src/premium.ts</small>
+      </li>
+    
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Security</strong>: Broken Card Validation: Card expiry date validation logic is fundamentally flawed. The function creates dates like 2025-01-01 from YY format, causing all cards to appear expired immediately. Additionally, Luhn algorithm is not implemented, allowing invalid card numbers to pass validation.
+        <br><small>Files: src/premium.ts</small>
+      </li>
+    
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Testing</strong>: Zero Test Coverage: This critical payment processing and subscription management module has 0% test coverage. All 6 functions are completely untested. This represents extreme technical risk in production use - any bug could result in revenue loss, data breaches, or compliance violations.
+        <br><small>Files: src/premium.ts</small>
+      </li>
+    
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Business Logic</strong>: Missing Transaction Atomicity: No rollback mechanism if payment succeeds but subscription upgrade fails. Users could be charged without receiving premium features, creating orphaned transactions and customer support issues.
+        <br><small>Files: src/premium.ts</small>
       </li>
     
       <li class="rec-high">
         <span class="priority">[HIGH]</span>
-        <strong>Testing</strong>: Error handling code lacks test coverage
-        <br><small>Files: src/index.ts</small>
-      </li>
-    
-      <li class="rec-medium">
-        <span class="priority">[MEDIUM]</span>
-        <strong>Performance</strong>: N+1 query pattern detected
-        <br><small>Files: src/index.ts</small>
-      </li>
-    
-      <li class="rec-medium">
-        <span class="priority">[MEDIUM]</span>
-        <strong>Refactoring</strong>: Extract data processing logic into separate function
-        <br><small>Files: src/index.ts</small>
-      </li>
-    
-      <li class="rec-low">
-        <span class="priority">[LOW]</span>
-        <strong>Code Quality</strong>: Simplify nested conditionals in validation
-        <br><small>Files: src/utils/helpers.ts</small>
+        <strong>Security</strong>: Unencrypted Payment Data Storage: Card last four digits are stored unencrypted in the database without field-level encryption or access controls. Combined with amount and status, this creates a queryable database of payment transactions vulnerable to data exfiltration.
+        <br><small>Files: src/premium.ts</small>
       </li>
     </ul>
 
   <footer>
-    Generated at 2026-11-23T03:09:17.225Z • Duration: 2500ms
+    Generated at 2026-11-23T10:30:00Z • Duration: 45000ms
   </footer>
 </body>
 </html>

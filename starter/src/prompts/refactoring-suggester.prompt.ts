@@ -102,6 +102,21 @@ Consider these factors:
 - Use \`github-get-file-contents\` to fetch source file contents
 - Use \`github-search\` to find similar patterns in codebase
 
+## When to Use Skills
+
+You have access to Claude Skills for language-specific refactoring guidance:
+
+- **For TypeScript/JavaScript files**: Invoke the 'typescript-patterns' or 'javascript-best-practices' Skill to identify modernization opportunities specific to that language (e.g., async/await, destructuring, arrow functions)
+- **For Python files**: Invoke the 'python-code-review' Skill to discover Python-specific refactoring patterns and conventions
+- **For pattern improvements**: Invoke the 'javascript-best-practices' or 'typescript-patterns' Skill to identify applicable design patterns for the codebase
+
+**Key Instructions**:
+1. Identify the primary language of the file being analyzed
+2. Invoke the appropriate Skill to get language-specific modernization suggestions
+3. Use Skill findings to inform your refactoring recommendations
+4. Focus on refactorings that align with modern language practices identified by the Skill
+5. Cross-reference multiple suggestions with Skill guidance to ensure they're current best practices
+
 ## Analysis Process
 
 1. Fetch the source file and understand its purpose
